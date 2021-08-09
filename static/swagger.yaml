@@ -1,0 +1,190 @@
+openapi: 3.0.1
+info:
+  title: Swagger Flask API
+  description: 'This is a sample Flask API server.'
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: apiteam@swagger.io
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: /
+
+tags:
+- name: Create Assignments
+  description: assignments
+  externalDocs:
+    description: Find out more
+    url: http://swagger.io
+
+paths:
+  /assignments:
+    post:
+      tags:
+      - assignments
+      summary: Add a new assignments to the application
+      operationId: addAssignments
+      requestBody:
+        description: Assignments object that needs to be added to the application
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/assignments'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/assignments'
+        required: true
+      responses:
+        405:
+          description: Invalid input
+          content: {}
+      security:
+      - assignments_auth:
+        - write:assignments
+        - read:assignments
+      x-codegen-request-body-name: body
+
+  /findById:
+    get:
+      tags:
+      - assignments
+      summary: Finds assignments by id
+      description: Finds assignments by id
+      operationId: id
+      parameters:
+      - name: id
+        in: query
+        description: Status values that need to be considered for filter
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+            default: available
+            enum:
+            - 11001
+            - 11002
+            - 11003
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/findById'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/findById'
+        400:
+          description: Invalid status value
+          content: {}
+      security:
+      - assignments_auth:
+        - write:assignments
+        - read:assignments
+  /findByTags:
+    get:
+      tags:
+      - assignments
+      summary: Finds assignments by tags
+      description: Muliple tags can be provided with comma separated strings. Use         tag1,
+        tag2, tag3 for testing.
+      operationId: findAssignmentsByTags
+      parameters:
+      - name: tags
+        in: query
+        description: Tags to filter by
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/assignments'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/assignments'
+        400:
+          description: Invalid tag value
+          content: {}
+      deprecated: true
+      security:
+      - assignments_auth:
+        - write:assignments
+        - read:assignments
+
+components:
+  schemas:
+    assignments:
+      type: object
+      properties:
+        id:
+          type: integer
+          default: 110
+          format: int64
+
+        name:
+          type: string
+          default: Python
+          description: name of the assignment
+
+        title:
+          type: string
+          default: Python
+          description: title of the assignment
+
+        description:
+          type: string
+          default: Python Scripting
+          description: description of the assignment
+
+        type:
+          type: string
+          default: python
+          description: type of the assignment
+
+        duration:
+          type: string
+          default: 2hrs
+          description: duration of the assignment
+    findById:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+  securitySchemes:
+    assignments_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /login
+          scopes:
+            write:assignments: modify assignments in your account
+            read:assignments: read your assignments
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header
